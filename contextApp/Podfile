@@ -1,0 +1,25 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '9.0'
+
+target 'contextApp' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for contextApp
+
+  #Pod for webscraping
+  pod 'SwiftSoup'
+
+  target 'contextAppTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'contextAppUITests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+   
+
+end

@@ -12,6 +12,7 @@ import ARKit
 import SpriteKit
 import Vision
 import CoreLocation //Core Location module, for the activation of functionality if user is with the pre-established scene
+import SwiftSoup //Swift Soup pod imported for webscraping
 
 // Extemtion of the SCNNode pattern, adjusting the placement of the node in relation to the scanned object
 extension SCNNode {

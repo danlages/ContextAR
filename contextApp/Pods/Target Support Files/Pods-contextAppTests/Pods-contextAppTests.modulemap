@@ -1,0 +1,6 @@
+framework module Pods_contextAppTests {
+  umbrella header "Pods-contextAppTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
