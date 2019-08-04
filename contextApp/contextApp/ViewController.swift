@@ -37,6 +37,11 @@ extension SCNNode {
 
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
+    //Test Station Variables
+    let startPoint: String = "penarth"
+    let endPoint: String = "cardiff-queen-street"
+    
+    
     @IBOutlet var sceneView: ARSCNView!
     
 //    var infoPoints = [String: InfoPoints]() // Decleare string of sign information to be diplayed when corrispondoing sign is shown
@@ -51,6 +56,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         sceneView.delegate = self
 
         sceneView.session.delegate = self as ARSessionDelegate
+        
     
         
         // Set the view's delegate
@@ -81,9 +87,31 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         sceneView.session.run(configuration)
     }
     
-    
+
     func calculateData() {
         //Function to determine which data to map to information point interface
+    }
+    
+    func timeScrape(startPoint: String, endPoint: String) -> [String] { //Returning Arrays of platform and train times
+        var arrivalTime = ""
+        let URLString = String("https://www.thetrainline.com/live/departures/" + startPoint + "-to-" + endPoint) //Concatinate URL
+        let sourceURL = NSURL(string: URLString)
+        let html = try! String (contentsOf: sourceURL! as URL, encoding: .utf8)
+        
+        do {
+            let siteDocument: Document = try SwiftSoup.parseBodyFragment(html)
+            let componants = try siteDocument.getAllElements() //Get all elementes ready to be filtered]
+            
+            for i in componants {
+                arrivalTime = try i.getElementsByClass("scheduled-time").text()
+                break; //Limiting amount of information per fetch
+            }
+            
+        } catch {
+            print("Unable to parse URL")
+        }
+        let times = arrivalTime.components(separatedBy: " ")
+        return times
     }
     
     //Renderer serving to latch software elemebts to recongnised information points
@@ -92,11 +120,18 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             fatalError("Unable to find anchor point for software overlay")
         }
         
+        var trainTimes: [String] = []
+        
+        trainTimes = timeScrape(startPoint: startPoint, endPoint: endPoint)
+        
+        
         let positionBoarder: Float = 0.1
         
         let pointName = interfacePostion.referenceImage.name
         print(pointName!)
-        let pointDescription = "Your train leaves in 10 mins"
+        
+        let journeyDesption = String(startPoint + " -> " + endPoint)
+        let timeDescription = String(trainTimes[0] + "\n" + trainTimes[1] + "\n" + trainTimes[2]) //Limit information shown to user for UI clarity
         
         let overlay = SCNPlane(width: interfacePostion.referenceImage.physicalSize.width, height: interfacePostion.referenceImage.physicalSize.height)
         
@@ -114,18 +149,26 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         headingNode.position.y += Float(overlay.height / 2)
         overlayNode.addChildNode(headingNode)
         
-        let bioNode = infoNode(pointDescription, width: 1000, font: UIFont.systemFont(ofSize: 100))
-        bioNode.angleFromLeftPos()
-        bioNode.position.x += Float(overlay.width / 2) + positionBoarder
-        bioNode.position.y = Float(headingNode.position.y / 2) - positionBoarder
-        overlayNode.addChildNode(bioNode)
+        let journeyNode = infoNode(journeyDesption, font: UIFont.boldSystemFont(ofSize: 150))
+        journeyNode.angleFromLeftPos()
+        journeyNode.position.x += Float(overlay.width / 2) + positionBoarder
+        journeyNode.position.y = Float(headingNode.position.y / 2) + positionBoarder
+        overlayNode.addChildNode(journeyNode)
         
-        let alertNode = SCNPlane(width: interfacePostion.referenceImage.physicalSize.height, height: interfacePostion.referenceImage.physicalSize.width / 8 * 5)
+        
+        let timesNode = infoNode(timeDescription, width: 1000, font: UIFont.systemFont(ofSize: 100))
+        timesNode.angleFromLeftPos()
+        timesNode.position.x += Float(overlay.width / 2) + positionBoarder
+        timesNode.position.y = Float(journeyNode.position.y / 4) - positionBoarder
+        overlayNode.addChildNode(timesNode)
+        
+        let alertNode = SCNPlane(width: interfacePostion.referenceImage.physicalSize.height, height:
+            interfacePostion.referenceImage.physicalSize.width / 8 * 5)
         alertNode.firstMaterial?.diffuse.contents = UIImage(named: "ProceedSq")
         
         let imageNode = SCNNode(geometry: alertNode)
         imageNode.position.x -= Float(overlay.width)
-        imageNode.position.y = Float(bioNode.position.y / 2) - positionBoarder
+        imageNode.position.y = Float(timesNode.position.y / 2) - positionBoarder
         overlayNode.addChildNode(imageNode)
         
         
