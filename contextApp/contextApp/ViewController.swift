@@ -13,6 +13,7 @@ import SpriteKit
 import Vision
 import CoreLocation //Core Location module, for the activation of functionality if user is with the pre-established scene
 import SwiftSoup //Swift Soup pod imported for webscraping
+import SwiftyTesseract //Swift Wrapper inclsive of the Tesseract Engine to perform OCR
 
 // Extemtion of the SCNNode pattern, adjusting the placement of the node in relation to the scanned object
 extension SCNNode {
@@ -54,13 +55,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         let overlayScene = SKScene()
         overlayScene.scaleMode = .aspectFit
         sceneView.delegate = self
-
         sceneView.session.delegate = self as ARSessionDelegate
-        
-    
-        
-        // Set the view's delegate
-        sceneView.delegate = self
+        sceneView.delegate = self // Set the view's delegate
+        let swiftyTesseract = SwiftyTesseract(language: .english)
     
         //sceneView.showsStatistics = true // Show statistics such as fps and timing information
         
@@ -114,7 +111,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         return times
     }
     
-    //Renderer serving to latch software elemebts to recongnised information points
+    //Renderer serving to latch software elements to recongnised information points
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
         guard let interfacePostion = anchor as? ARImageAnchor else {
             fatalError("Unable to find anchor point for software overlay")

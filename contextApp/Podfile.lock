@@ -1,16 +1,20 @@
 PODS:
   - SwiftSoup (2.2.0)
+  - SwiftyTesseract (2.2.0)
 
 DEPENDENCIES:
   - SwiftSoup
+  - SwiftyTesseract (~> 2.0)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - SwiftSoup
+    - SwiftyTesseract
 
 SPEC CHECKSUMS:
   SwiftSoup: 230991361c5ba249d140161860a3864a28b63860
+  SwiftyTesseract: 44a8f4b2b7e5f22b997919f935261d22d28a4917
 
-PODFILE CHECKSUM: 01dcabc9ffe4df81280cfd56d1a454080a3785d7
+PODFILE CHECKSUM: 49633b83c6a76b4a88adafa2de9e70fa7bd85c0a
 
 COCOAPODS: 1.7.5
