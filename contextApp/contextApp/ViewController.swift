@@ -13,12 +13,12 @@ import SpriteKit
 import Vision
 import CoreLocation //Core Location module, for the activation of functionality if user is with the pre-established scene
 import SwiftSoup //Swift Soup pod imported for webscraping
-import SwiftyTesseract //Swift Wrapper inclsive of the Tesseract Engine to perform OCR
+import SwiftyTesseract
 
 // Extemtion of the SCNNode pattern, adjusting the placement of the node in relation to the scanned object
 extension SCNNode {
     var width: Float {
-        return (boundingBox.max.x - boundingBox.min.x) + scale.x
+        return (boundingBox.max.x - boundingBox.min.x) + scale.x 
     }
     var height: Float {
         return (boundingBox.max.y - boundingBox.min.y) + scale.y
@@ -41,6 +41,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     //Test Station Variables
     let startPoint: String = "penarth"
     let endPoint: String = "cardiff-queen-street"
+
     
     
     @IBOutlet var sceneView: ARSCNView!
@@ -51,13 +52,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+       
         let overlayScene = SKScene()
         overlayScene.scaleMode = .aspectFit
         sceneView.delegate = self
         sceneView.session.delegate = self as ARSessionDelegate
         sceneView.delegate = self // Set the view's delegate
-        let swiftyTesseract = SwiftyTesseract(language: .english)
+        
     
         //sceneView.showsStatistics = true // Show statistics such as fps and timing information
         
@@ -111,6 +112,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         return times
     }
     
+    
     //Renderer serving to latch software elements to recongnised information points
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
         guard let interfacePostion = anchor as? ARImageAnchor else {
@@ -121,12 +123,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         
         trainTimes = timeScrape(startPoint: startPoint, endPoint: endPoint)
         
-        
         let positionBoarder: Float = 0.1
         
         let pointName = interfacePostion.referenceImage.name
         print(pointName!)
         
+  
         let journeyDesption = String(startPoint + " -> " + endPoint)
         let timeDescription = String(trainTimes[0] + "\n" + trainTimes[1] + "\n" + trainTimes[2]) //Limit information shown to user for UI clarity
         
@@ -168,6 +170,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         imageNode.position.y = Float(timesNode.position.y / 2) - positionBoarder
         overlayNode.addChildNode(imageNode)
         
+        let swiftyTesseract = SwiftyTesseract(language: .english)
+        guard let image = UIImage(named: pointName!) else { return node }
+        swiftyTesseract.performOCR(on: image) { ocrResult in
+            guard let ocrResult = ocrResult else { return }
+            print("OCR Result:" + ocrResult)
+        }
         
         return node//Output Interface
     

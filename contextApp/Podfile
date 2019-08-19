@@ -7,11 +7,11 @@ target 'contextApp' do
 
   # Pods for contextApp
 
+  #Pod for OCR
+  pod 'SwiftyTesseract', '~> 2.0'
+
   #Pod for webscraping
   pod 'SwiftSoup'
-
-  #Pod for OCR
-  pod 'SwiftyTesseract',    '~> 2.0'
 
   target 'contextAppTests' do
     inherit! :search_paths
