@@ -11,9 +11,10 @@ import SceneKit
 import ARKit
 import SpriteKit
 import Vision
+import Foundation //Allowing for the use of external clases
 import CoreLocation //Core Location module, for the activation of functionality if user is with the pre-established scene
 import SwiftSoup //Swift Soup pod imported for webscraping
-import SwiftyTesseract
+import SwiftyTesseract //SwiftyTesseract Pod importted for OCR
 
 // Extemtion of the SCNNode pattern, adjusting the placement of the node in relation to the scanned object
 extension SCNNode {
@@ -36,13 +37,12 @@ extension SCNNode {
     }
 }
 
-class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
+class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CLLocationManagerDelegate {
 
     //Test Station Variables
     let startPoint: String = "penarth"
     let endPoint: String = "cardiff-queen-street"
-
-    
+    let locationPermit = CLLocationManager()
     
     @IBOutlet var sceneView: ARSCNView!
     
@@ -59,8 +59,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         sceneView.session.delegate = self as ARSessionDelegate
         sceneView.delegate = self // Set the view's delegate
         
+        //MARK: Location Initialisation
+        
+        locationPermit.delegate = self as CLLocationManagerDelegate
+        locationPermit.desiredAccuracy = kCLLocationAccuracyBest
+        locationPermit.requestAlwaysAuthorization() //Request Allways On location for effective computation
+        locationPermit.startUpdatingLocation()
+        
     
-        //sceneView.showsStatistics = true // Show statistics such as fps and timing information
         
         // Create a new scene
         //let scene = SCNScene(named: "art.scnassets/ship.scn")!
@@ -87,7 +93,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     
 
     func calculateData() {
+        //Take location and time as parameter
         //Function to determine which data to map to information point interface
+        //Need to access data store with user behaviour
+    }
+    
+    func textParsing(expectedDestination: String) {
+        //Perform parsing of OCR result upon the recognition of train times information point
     }
     
     func timeScrape(startPoint: String, endPoint: String) -> [String] { //Returning Arrays of platform and train times
@@ -137,10 +149,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         overlay.firstMaterial?.diffuse.contents = UIColor.clear //UIImage(named: "Proceed")
         let overlayNode = SCNNode(geometry: overlay)
         
+    
         let node  = SCNNode()
         overlayNode.eulerAngles.x = -.pi / 2
         node.addChildNode(overlayNode)
-
         
         let headingNode = infoNode(pointName!, font: UIFont.boldSystemFont(ofSize: 200))
         headingNode.angleFromLeftPos()
@@ -154,7 +166,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         journeyNode.position.y = Float(headingNode.position.y / 2) + positionBoarder
         overlayNode.addChildNode(journeyNode)
         
-        
         let timesNode = infoNode(timeDescription, width: 1000, font: UIFont.systemFont(ofSize: 100))
         timesNode.angleFromLeftPos()
         timesNode.position.x += Float(overlay.width / 2) + positionBoarder
@@ -163,7 +174,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         
         let alertNode = SCNPlane(width: interfacePostion.referenceImage.physicalSize.height, height:
             interfacePostion.referenceImage.physicalSize.width / 8 * 5)
-        alertNode.firstMaterial?.diffuse.contents = UIImage(named: "ProceedSq")
+        alertNode.firstMaterial?.diffuse.contents = UIImage(named: "ProceedSq") //Need to activate this
         
         let imageNode = SCNNode(geometry: alertNode)
         imageNode.position.x -= Float(overlay.width)
@@ -177,8 +188,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             print("OCR Result:" + ocrResult)
         }
         
-        return node//Output Interface
-    
+        return node //Output Interface 
     }
     
     override func viewWillDisappear(_ animated: Bool) {

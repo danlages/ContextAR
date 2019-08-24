@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2F4C7CA2230FFCCC008A553C /* ContextAR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4C7CA1230FFCCC008A553C /* ContextAR.swift */; };
 		2F76CC0D22DCA84D001179BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F76CC0C22DCA84D001179BF /* AppDelegate.swift */; };
 		2F76CC0F22DCA84D001179BF /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F76CC0E22DCA84D001179BF /* art.scnassets */; };
 		2F76CC1122DCA84D001179BF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F76CC1022DCA84D001179BF /* ViewController.swift */; };
@@ -42,6 +43,7 @@
 		03C8B4E7D391E2BDB6C0ADA1 /* Pods-contextAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-contextAppUITests.release.xcconfig"; path = "Target Support Files/Pods-contextAppUITests/Pods-contextAppUITests.release.xcconfig"; sourceTree = "<group>"; };
 		1292B6535E30939A21A601E7 /* Pods-contextApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-contextApp.release.xcconfig"; path = "Target Support Files/Pods-contextApp/Pods-contextApp.release.xcconfig"; sourceTree = "<group>"; };
 		1CB1596C0A39D42292D7C756 /* Pods-contextApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-contextApp.debug.xcconfig"; path = "Target Support Files/Pods-contextApp/Pods-contextApp.debug.xcconfig"; sourceTree = "<group>"; };
+		2F4C7CA1230FFCCC008A553C /* ContextAR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextAR.swift; sourceTree = "<group>"; };
 		2F76CC0922DCA84D001179BF /* contextApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = contextApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F76CC0C22DCA84D001179BF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2F76CC0E22DCA84D001179BF /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 				2F76CC0C22DCA84D001179BF /* AppDelegate.swift */,
 				2F76CC0E22DCA84D001179BF /* art.scnassets */,
 				2F76CC1022DCA84D001179BF /* ViewController.swift */,
+				2F4C7CA1230FFCCC008A553C /* ContextAR.swift */,
 				2F76CC1222DCA84D001179BF /* Main.storyboard */,
 				2F76CC1522DCA84E001179BF /* Assets.xcassets */,
 				2F76CC1722DCA84E001179BF /* LaunchScreen.storyboard */,
@@ -397,6 +400,7 @@
 			files = (
 				2F76CC1122DCA84D001179BF /* ViewController.swift in Sources */,
 				2F76CC0D22DCA84D001179BF /* AppDelegate.swift in Sources */,
+				2F4C7CA2230FFCCC008A553C /* ContextAR.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
