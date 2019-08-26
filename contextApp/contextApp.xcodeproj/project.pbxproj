@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2F4C7CA2230FFCCC008A553C /* ContextAR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4C7CA1230FFCCC008A553C /* ContextAR.swift */; };
 		2F76CC0D22DCA84D001179BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F76CC0C22DCA84D001179BF /* AppDelegate.swift */; };
 		2F76CC0F22DCA84D001179BF /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F76CC0E22DCA84D001179BF /* art.scnassets */; };
 		2F76CC1122DCA84D001179BF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F76CC1022DCA84D001179BF /* ViewController.swift */; };
@@ -17,6 +16,7 @@
 		2F76CC2422DCA84E001179BF /* contextAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F76CC2322DCA84E001179BF /* contextAppTests.swift */; };
 		2F76CC2F22DCA84E001179BF /* contextAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F76CC2E22DCA84E001179BF /* contextAppUITests.swift */; };
 		2FAFA4FA230B108800266E2A /* tessdata in Resources */ = {isa = PBXBuildFile; fileRef = 2FAFA4F9230B108800266E2A /* tessdata */; };
+		2FFA5A99231470E4007862AC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2FFA5A98231470E4007862AC /* GoogleService-Info.plist */; };
 		483104CC27834643B5685A3B /* Pods_contextAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49831412942543EFBCA8BAB8 /* Pods_contextAppUITests.framework */; };
 		50A5C3EC9967B016FF869C75 /* Pods_contextApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71D90100D4D2887FE64D4873 /* Pods_contextApp.framework */; };
 		B09ACD7FE1E7016AD0461BAD /* Pods_contextAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46C570808F944B5EE57A623B /* Pods_contextAppTests.framework */; };
@@ -43,7 +43,6 @@
 		03C8B4E7D391E2BDB6C0ADA1 /* Pods-contextAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-contextAppUITests.release.xcconfig"; path = "Target Support Files/Pods-contextAppUITests/Pods-contextAppUITests.release.xcconfig"; sourceTree = "<group>"; };
 		1292B6535E30939A21A601E7 /* Pods-contextApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-contextApp.release.xcconfig"; path = "Target Support Files/Pods-contextApp/Pods-contextApp.release.xcconfig"; sourceTree = "<group>"; };
 		1CB1596C0A39D42292D7C756 /* Pods-contextApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-contextApp.debug.xcconfig"; path = "Target Support Files/Pods-contextApp/Pods-contextApp.debug.xcconfig"; sourceTree = "<group>"; };
-		2F4C7CA1230FFCCC008A553C /* ContextAR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextAR.swift; sourceTree = "<group>"; };
 		2F76CC0922DCA84D001179BF /* contextApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = contextApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F76CC0C22DCA84D001179BF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2F76CC0E22DCA84D001179BF /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -59,6 +58,7 @@
 		2F76CC2E22DCA84E001179BF /* contextAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = contextAppUITests.swift; sourceTree = "<group>"; };
 		2F76CC3022DCA84E001179BF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2FAFA4F9230B108800266E2A /* tessdata */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tessdata; sourceTree = SOURCE_ROOT; };
+		2FFA5A98231470E4007862AC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Desktop/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		46C570808F944B5EE57A623B /* Pods_contextAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_contextAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		49831412942543EFBCA8BAB8 /* Pods_contextAppUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_contextAppUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		69D7A4913CC6C46AFD2A1133 /* Pods-contextAppUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-contextAppUITests.debug.xcconfig"; path = "Target Support Files/Pods-contextAppUITests/Pods-contextAppUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -124,10 +124,10 @@
 				2F76CC0C22DCA84D001179BF /* AppDelegate.swift */,
 				2F76CC0E22DCA84D001179BF /* art.scnassets */,
 				2F76CC1022DCA84D001179BF /* ViewController.swift */,
-				2F4C7CA1230FFCCC008A553C /* ContextAR.swift */,
 				2F76CC1222DCA84D001179BF /* Main.storyboard */,
 				2F76CC1522DCA84E001179BF /* Assets.xcassets */,
 				2F76CC1722DCA84E001179BF /* LaunchScreen.storyboard */,
+				2FFA5A98231470E4007862AC /* GoogleService-Info.plist */,
 				2F76CC1A22DCA84E001179BF /* Info.plist */,
 			);
 			path = contextApp;
@@ -288,6 +288,7 @@
 				2FAFA4FA230B108800266E2A /* tessdata in Resources */,
 				2F76CC1622DCA84E001179BF /* Assets.xcassets in Resources */,
 				2F76CC1422DCA84D001179BF /* Main.storyboard in Resources */,
+				2FFA5A99231470E4007862AC /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -400,7 +401,6 @@
 			files = (
 				2F76CC1122DCA84D001179BF /* ViewController.swift in Sources */,
 				2F76CC0D22DCA84D001179BF /* AppDelegate.swift in Sources */,
-				2F4C7CA2230FFCCC008A553C /* ContextAR.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

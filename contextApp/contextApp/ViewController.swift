@@ -11,10 +11,50 @@ import SceneKit
 import ARKit
 import SpriteKit
 import Vision
+import CoreData
+import FirebaseFirestore
 import Foundation //Allowing for the use of external clases
 import CoreLocation //Core Location module, for the activation of functionality if user is with the pre-established scene
 import SwiftSoup //Swift Soup pod imported for webscraping
-import SwiftyTesseract //SwiftyTesseract Pod importted for OCR
+import SwiftyTesseract //SwiftyTesseract Pod imported for OCR
+import SQLite3 //SQLite imported for database implementation
+import VideoToolbox
+
+class Event {
+    var location: String?
+    var desitnation: String?
+    var platform: String?
+    var time: String?
+    
+    init(location: String?, destination: String?, platform: String?, time: String){
+        self.location = location
+        self.desitnation = destination
+        self.platform = platform
+        self.time = time
+        
+    }
+}
+
+struct event {
+    static var location: String = ""
+    static var destination: String = ""
+    static var platform: String = ""
+    static var time: String = ""
+}
+
+extension UIImage {  //Extention for UI image used from https://stackoverflow.com/questions/8072208/how-to-turn-a-cvpixelbuffer-into-a-uiimage - Allowing conversion of current frame to UI image
+    
+    public convenience init?(pixelBuffer: CVPixelBuffer) {
+        var cgImage: CGImage?
+        VTCreateCGImageFromCVPixelBuffer(pixelBuffer, options: nil, imageOut: &cgImage)
+        
+        if let cgImage = cgImage {
+            self.init(cgImage: cgImage)
+        } else {
+            return nil
+        }
+    }
+}
 
 // Extemtion of the SCNNode pattern, adjusting the placement of the node in relation to the scanned object
 extension SCNNode {
@@ -39,12 +79,19 @@ extension SCNNode {
 
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CLLocationManagerDelegate {
 
+    
     //Test Station Variables
     let startPoint: String = "penarth"
     let endPoint: String = "cardiff-queen-street"
     let locationPermit = CLLocationManager()
+    let swiftyTesseract = SwiftyTesseract(language: .english) //Definition of Swifty Tesseract training Languge
+    var eventList = [Event]()
     
     @IBOutlet var sceneView: ARSCNView!
+    
+    
+    
+    
     
 //    var infoPoints = [String: InfoPoints]() // Decleare string of sign information to be diplayed when corrispondoing sign is shown
     
@@ -52,6 +99,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
        
         let overlayScene = SKScene()
         overlayScene.scaleMode = .aspectFit
@@ -66,7 +114,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         locationPermit.requestAlwaysAuthorization() //Request Allways On location for effective computation
         locationPermit.startUpdatingLocation()
         
-    
         
         // Create a new scene
         //let scene = SCNScene(named: "art.scnassets/ship.scn")!
@@ -74,6 +121,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         // Set the scene to the view
         //sceneView.scene = scene
     }
+
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -91,16 +139,66 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         sceneView.session.run(configuration)
     }
     
+    //Calculate
+    
+    func gatherValues() {
+        let eventDatabase = Firestore.firestore()
+        eventDatabase.collection("Event").getDocuments { (snapshot , error) in
+            if error != nil {
+                print("Error when gathering Event Values \(String(describing: error))")
+            }
+            else{
+                for document in (snapshot?.documents)! {
+                    event.location = document.data()["location"] as? String ?? ""
+                    event.destination = document.data()["Destination"] as? String ?? ""
+                    event.platform = document.data()["Platform"] as? String ?? ""
+                    event.time = document.data()["time"] as? String ?? ""
+                    
+                    let eventInstance = Event(location: event.location, destination: event.destination, platform: event.platform , time: event.time )
+                    
+                    self.eventList += [eventInstance]
+                    
+                }
+            }
+        }
+    }
+    
 
     func calculateData() {
         //Take location and time as parameter
         //Function to determine which data to map to information point interface
         //Need to access data store with user behaviour
+        //Query SQL data
+        //Assignment of new events to event table can be achived following significant location adjustments
     }
     
-    func textParsing(expectedDestination: String) {
+    func textParsing(ocrOutput: String, expectedDesination:String) -> (String) {
         //Perform parsing of OCR result upon the recognition of train times information point
+        // Parse location as first line
+        var platform: String = ""
+        var selectedLine: [String] = []
+        let lines = ocrOutput.components(separatedBy: "\n") //Implement array of lines to iterate through - First line depicts current location
+        let destination = lines[0] //First line is location - CAN BE USED TO VALIDATE LOCATION GATHERED FROM COORDS
+        
+        if ocrOutput == "" //Simple Error Handeling
+        {
+            platform = ""
+        }
+        else {
+            for line in lines[2...] { //From 3rd line onwards loop in order to gather train time
+                if line.contains(expectedDesination) { //talk about oN is dis.
+                selectedLine = line.components(separatedBy: " ") //Find line concerning expected destination
+                }
+            }
+        }
+        //MARK: NEEDs error handeling if OCR fails
+        platform = selectedLine[1]
+    
+        print(platform)
+        
+        return (platform) //May need to return all values for parsing
     }
+    
     
     func timeScrape(startPoint: String, endPoint: String) -> [String] { //Returning Arrays of platform and train times
         var arrivalTime = ""
@@ -120,10 +218,45 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         } catch {
             print("Unable to parse URL")
         }
+        
         let times = arrivalTime.components(separatedBy: " ")
         return times
     }
     
+
+//    func readValues() {
+//
+//        //first empty the list of heroes
+//        eventList.removeAll()
+//
+//        //this is our select query
+//        let queryString = "SELECT * FROM Events"
+//
+//        //statement pointer
+//        var stmt: OpaquePointer?
+//
+//        //preparing the query
+//        if sqlite3_prepare(database, queryString, -1, &stmt, nil) != SQLITE_OK{
+//            let errmsg = String(cString: sqlite3_errmsg(database)!)
+//            print("error preparing insert: \(errmsg)")
+//            return
+//        }
+//
+//        //traversing through all the records
+//        while(sqlite3_step(stmt) == SQLITE_ROW){
+//            let id = sqlite3_column_int(stmt, 0)
+//            let location = String(cString: sqlite3_column_text(stmt, 1))
+//            let destination = String(cString: sqlite3_column_text(stmt, 2))
+//            let platform = String(cString: sqlite3_column_text(stmt, 3))
+//            let time = String(cString: sqlite3_column_text(stmt, 4))
+//
+//            //adding values to list
+//            eventList.append(Event(id: Int(id), location: String(describing: location), destination: String(describing: destination), platform: String(describing: platform), time: String(describing: time)))
+//        }
+//
+//        print("database values read")
+//        print(eventList)
+//    }
     
     //Renderer serving to latch software elements to recongnised information points
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
@@ -131,36 +264,103 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
             fatalError("Unable to find anchor point for software overlay")
         }
         
-        var trainTimes: [String] = []
+        //MARK: TRAIN TIME INFO POINT
         
-        trainTimes = timeScrape(startPoint: startPoint, endPoint: endPoint)
+        var trainTimes: [String] = []
+        var timeDescription: String = "" //Varibale placeholder for gathered train times
         
         let positionBoarder: Float = 0.1
         
-        let pointName = interfacePostion.referenceImage.name
+        let pointName = interfacePostion.referenceImage.name //Determine information point
         print(pointName!)
         
-  
-        let journeyDesption = String(startPoint + " -> " + endPoint)
-        let timeDescription = String(trainTimes[0] + "\n" + trainTimes[1] + "\n" + trainTimes[2]) //Limit information shown to user for UI clarity
         
+        //MARK: Can these be replaced with classes
+        var expectedPlatform: String = "" //Must determine train time information point and perform OCR before platform result
+        
+        var expectDestination: String = "Penarth"  //FOR NOW ----Need to Use location infromation to parse expected destination
+        
+        var journeyDescription: String = ""
+        var requiredPlatform: String = "2"
+        var promptImage:String = "" //Variable for the defintion of a 
         let overlay = SCNPlane(width: interfacePostion.referenceImage.physicalSize.width, height: interfacePostion.referenceImage.physicalSize.height)
+        var ocrResultVar: String = ""
+       
+    gatherValues()
         
         overlay.firstMaterial?.diffuse.contents = UIColor.clear //UIImage(named: "Proceed")
         let overlayNode = SCNNode(geometry: overlay)
         
-    
+        
         let node  = SCNNode()
         overlayNode.eulerAngles.x = -.pi / 2
         node.addChildNode(overlayNode)
         
+        let imagefromscene = sceneView.session.currentFrame?.capturedImage
+        guard let image = UIImage(pixelBuffer: imagefromscene!) else { return node }
+        swiftyTesseract.performOCR(on: image) { ocrResult in
+            ocrResultVar = ocrResult!
+            print("OCR Result:" + ocrResultVar)
+        }
+        
+
+         if (pointName?.contains("TrainTimes"))! { //TRAIN TIMES SIGN
+            let imagefromscene = sceneView.session.currentFrame?.capturedImage
+            
+            guard let image = UIImage(pixelBuffer: imagefromscene!) else { return node }
+            swiftyTesseract.performOCR(on: image) { ocrResult in
+                guard let ocrResult = ocrResult else { return }
+                print("OCR Result:" + ocrResult)
+                //Location function to be called here to compute current station
+                let requiredPlatform =  self.textParsing(ocrOutput: ocrResult, expectedDesination: expectDestination) //Set return result to current platform retrived through OCR
+                
+                //DATABase Query here
+                
+                journeyDescription = ("Go to Platform " + requiredPlatform + " for " + expectDestination + " train") //Need to fetch expected train informatiom
+                promptImage = "Proceed"
+            }
+        }
+            
+         else {
+            
+            let imagefromscene = sceneView.session.currentFrame?.capturedImage
+            guard let image = UIImage(pixelBuffer: imagefromscene!) else { return node }
+            swiftyTesseract.performOCR(on: image) { ocrResult in
+                ocrResultVar = ocrResult!
+                print("OCR Result:" + ocrResultVar)
+            }
+                //Location function to be called here to compute current station
+            
+            if (!(ocrResultVar.contains("2"))) {
+                
+                print(ocrResultVar)
+                promptImage = "Halt"
+                ocrResultVar = ""
+                
+              
+            }
+
+            else if ((ocrResultVar.contains("2"))) { // Correct PLATFORM SIGN
+                trainTimes = self.timeScrape(startPoint: self.startPoint, endPoint: self.endPoint)
+                timeDescription = String(trainTimes[0] + "\n" + trainTimes[1] + "\n" + trainTimes[2]) //Limit information shown to user for UI clarity
+                journeyDescription =  String(self.startPoint + " -> " + self.endPoint)
+                promptImage = "Proceed"
+                print(ocrResultVar)
+                
+                ocrResultVar = ""
+                
+            }
+        }
+        
+        
+        //Varaibles used as node should be manipulated by previouse if statement
         let headingNode = infoNode(pointName!, font: UIFont.boldSystemFont(ofSize: 200))
         headingNode.angleFromLeftPos()
         headingNode.position.x += Float(overlay.width / 2) + positionBoarder
         headingNode.position.y += Float(overlay.height / 2)
         overlayNode.addChildNode(headingNode)
         
-        let journeyNode = infoNode(journeyDesption, font: UIFont.boldSystemFont(ofSize: 150))
+        let journeyNode = infoNode(journeyDescription, font: UIFont.boldSystemFont(ofSize: 150))
         journeyNode.angleFromLeftPos()
         journeyNode.position.x += Float(overlay.width / 2) + positionBoarder
         journeyNode.position.y = Float(headingNode.position.y / 2) + positionBoarder
@@ -174,20 +374,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         
         let alertNode = SCNPlane(width: interfacePostion.referenceImage.physicalSize.height, height:
             interfacePostion.referenceImage.physicalSize.width / 8 * 5)
-        alertNode.firstMaterial?.diffuse.contents = UIImage(named: "ProceedSq") //Need to activate this
-        
+        alertNode.firstMaterial?.diffuse.contents = UIImage(named: promptImage) //MARK: Shoudl be determined by previous if statement
         let imageNode = SCNNode(geometry: alertNode)
         imageNode.position.x -= Float(overlay.width)
         imageNode.position.y = Float(timesNode.position.y / 2) - positionBoarder
         overlayNode.addChildNode(imageNode)
         
-        let swiftyTesseract = SwiftyTesseract(language: .english)
-        guard let image = UIImage(named: pointName!) else { return node }
-        swiftyTesseract.performOCR(on: image) { ocrResult in
-            guard let ocrResult = ocrResult else { return }
-            print("OCR Result:" + ocrResult)
-        }
         
+       
         return node //Output Interface 
     }
     
@@ -218,20 +412,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
     }
 */
     
-    func session(_ session: ARSession, didFailWithError error: Error) {
-        // Present an error message to the user
-        
-    }
-    
+//    func session(_ session: ARSession, didFailWithError error: Error) {
+//        // Present an error message to the user
+//
+//    }
+//
     func sessionWasInterrupted(_ session: ARSession) {
-        // Inform the user that the session has been interrupted, for example, by presenting an overlay
-        
+        print("Inter")
+
     }
-    
-    func sessionInterruptionEnded(_ session: ARSession) {
-        // Reset tracking and/or remove existing anchors if consistent tracking is required
-        
-    }
+//
+//    func sessionInterruptionEnded(_ session: ARSession) {
+//        // Reset tracking and/or remove existing anchors if consistent tracking is required
+//
+//    }
     
     func infoNode(_ str: String, width: Int? = nil, font: UIFont) -> SCNNode {
         let text = SCNText(string: str, extrusionDepth: 0)
