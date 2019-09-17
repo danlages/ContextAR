@@ -5,13 +5,16 @@
   },
   "resources" : [
     {
+      "filename" : "exitSign.arreferenceimage"
+    },
+    {
       "filename" : "Platform1.arreferenceimage"
     },
     {
       "filename" : "platform2.arreferenceimage"
     },
     {
-      "filename" : "TrainTimes.arreferenceimage"
+      "filename" : "traintimes.arreferenceimage"
     }
   ]
 }

@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "TrainTimes.png"
+      "filename" : "traintimes.png"
     }
   ],
   "info" : {
@@ -10,7 +10,6 @@
     "author" : "xcode"
   },
   "properties" : {
-    "width" : 12.696999999999999,
-    "unit" : "inches"
+    "width" : 12.696999999999999
   }
 }
