@@ -36,14 +36,12 @@ class Event {
     }
 }
 
-struct event {
+struct event { //Intial Struct Concept for Storing events
     static var location: String = ""
     static var destination: String = ""
     static var platform: String = ""
     static var time: String = ""
 }
-
-
 
 extension UIImage {  //Extention for UI image used from https://stackoverflow.com/questions/8072208/how-to-turn-a-cvpixelbuffer-into-a-uiimage - Allowing conversion of current frame to UI image
     
@@ -90,9 +88,14 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
     var eventList = [Event]()
     var destinationList:[String] = []
     
+    var currentStationLocation: String = ""
+    var currentStationPostCode: String = ""
+    var expectedDestination: String = ""
     var requiredPlatform: String = ""
     var finalDestination: String = ""
-    
+    var timeDescription: String = ""
+    var eventStore : [[String]] = [  ["BS1 6BX", "Penarth", "1", "Evening"], ["BS1 6LQ", "Penarth", "2", "Evening"], ["BS1 6BX", "Penarth", "2", "Evening"], ["BS1 6LQ", "Bristol-Temple-Meads", "2", "Evening"], ["BS1 6LQ", "Cardiff", "1", "Evening"] ]  //Database Storage - Events will be identifiable through the postcode value
+  
     @IBOutlet var sceneView: ARSCNView!
     
     
@@ -112,7 +115,22 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         //MARK: Location Initialisation
         
       
-        getCurrentTime()
+        self.timeDescription = getCurrentTime()
+        
+        
+        if let lastLocation = self.locationPermit.location {
+            let geocoder = CLGeocoder()
+            
+            geocoder.reverseGeocodeLocation(lastLocation, completionHandler: { (localPoints, error) in
+                if error == nil {
+                    let locationResult = localPoints?[0]
+                    print ("Postcode: " + (locationResult?.postalCode)!) //Return location Postcode to be passed into initial location feild
+                    self.currentStationPostCode = String((locationResult?.postalCode)!)
+                    
+                    self.currentStationPostCode = (locationResult?.postalCode!)!
+                }
+            })
+        }
         
         // Create a new scene
         //let scene = SCNScene(named: "art.scnassets/ship.scn")!
@@ -121,7 +139,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         //sceneView.scene = scene
     }
     
-   
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -169,9 +186,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
     
     
     
-    
-    
-    
 //    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) ->String {
 //
 //        var userLocationString = ""
@@ -209,81 +223,145 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
 //    }
     
     
-    func gatherReleventEvents(_ location: String, _ timeOfDay: String) -> [String] { //Parses firestore data inot array
-        let eventDatabase = Firestore.firestore()
-        //var eventArr = [Event]()
-        var destinationArr:[String] = []
-        
-        eventDatabase.collection("Event").getDocuments { (snapshot , error) in
-            if error != nil {
-                print("Error when gathering Event Values \(String(describing: error))")
-            }
-            else{
-                for document in (snapshot?.documents)! {
-                    if (document.data()["location"] as! String) == location && (document.data()["time"] as! String) == timeOfDay {
-                        event.location = (document.data()["location"] as! String)
-                        event.destination = (document.data()["destination"] as! String)
-                        event.platform = (document.data()["platform"] as! String)
-                        event.time = (document.data()["time"] as! String)
-                        let dest = (document.data()["destination"] as! String)
-                        destinationArr.append(event.destination)
-                        //print(document.data()["destination"] as! String)
-                    }
-                    //let eventInstance = Event(location: event.location, destination: event.destination, platform: event.platform , time: event.time )
-                }
-            }
-            print(destinationArr)
-        }
-        return destinationArr
-    }
     
-    func retrieveMostlikley(_ destinations: [String]) -> String {
+//func gatherReleventEvents(_ location: String, _ timeOfDay: String, _ requiredPlatform: String) -> String { //MARK: Initial Firbase Store
+//        let eventDatabase = Firestore.firestore()
+//        //var eventArr = [Event]()
+//        var destinationArr:[String] = []
+//
+//        eventDatabase.collection("Event").getDocuments { (snapshot , error) in
+//            if error != nil {
+//                print("Error when gathering Event Values \(String(describing: error))")
+//            }
+//            else{
+//                for document in (snapshot?.documents)! {
+//                    if (document.data()["location"] as! String) == location && (document.data()["time"] as! String) == timeOfDay {
+//                        event.location = (document.data()["location"] as! String)
+//                        event.destination = (document.data()["destination"] as! String)
+//                        event.platform = (document.data()["platform"] as! String)
+//                        event.time = (document.data()["time"] as! String)
+//                        let dest = (document.data()["destination"] as! String)
+//                        destinationArr.append(event.destination)
+//                        //print(document.data()["destination"] as! String)
+//                    }
+//                    //let eventInstance = Event(location: event.location, destination: event.destination, platform: event.platform , time: event.time )
+//                }
+//            }
+//            print(destinationArr)
+//
+//        }
         
-        var locationArr:[String] = []
-        var amount = [String: Int]() //Dictioary to stroe value and counts
-        var mostFrequent = ""
+//        var amount = [String: Int]() //Dictioary to store value and counts
+//        var mostFrequent = ""
+//
+//
+//
+//
+//
+//
+//        for local in destinationArr {
+//            if let iter = amount[local] {
+//                amount[local] = iter + 1
+//            }
+//            else {
+//                amount[local] = 1
+//            }
+//        }
+//
+//        for key in amount.keys {
+//            if mostFrequent == "" {
+//                mostFrequent = key
+//            }
+//            else {
+//                let count = amount[key]!
+//                if count > amount[mostFrequent]! {
+//                    mostFrequent = key
+//                }
+//            }
+//
+//        }
         
-        //for record in eventArr
+//        if (requiredPlatform != "" || expectedPlatform != "")
+//        {
+//            let journeyDescription = ("Go to Platform " + requiredPlatform + " for " + expectedDestination + " train") //Need to fetch expected train informatiom
+//            let promptImage = "Halt"
+//        }
+//
+//        else{
+//            let journeyDescription = ("Unable to gather context from current datapoints")
+//        }
         
-        for record in destinations {
-            locationArr.append(record)
-        }
-        
-        for local in locationArr {
-            if let iter = amount[local] {
-                amount[local] = iter + 1
-            }
-            else {
-                amount[local] = 1
-            }
-        }
-        
-        for key in amount.keys {
-            if mostFrequent == "" {
-                mostFrequent = key
-            }
-            else {
-                let count = amount[key]!
-                if count > amount[mostFrequent]! {
-                    mostFrequent = key
-                }
-            }
-            
-        }
-        
-        return mostFrequent
-    }
+        //return mostFrequent
+   // }
+ 
+//    func retrieveMostlikley(_ destinations: [String]) -> String {
+//
+//        var locationArr:[String] = []
+//        var amount = [String: Int]() //Dictioary to store value and counts
+//        var mostFrequent = ""
+//
+//        //for record in eventArr
+//
+//        for record in destinations {
+//            locationArr.append(record)
+//        }
+//
+//        for local in locationArr {
+//            if let iter = amount[local] {
+//                amount[local] = iter + 1
+//            }
+//            else {
+//                amount[local] = 1
+//            }
+//        }
+//
+//        for key in amount.keys {
+//            if mostFrequent == "" {
+//                mostFrequent = key
+//            }
+//            else {
+//                let count = amount[key]!
+//                if count > amount[mostFrequent]! {
+//                    mostFrequent = key
+//                }
+//            }
+//
+//        }
+//
+//        return mostFrequent
+//    }
     
-    func getCurrentTime() -> (String) {
+    func getCurrentTime() -> String {
         let currentDate = Date()// Date method for retrieving time elements from calander
         var calandarComponant = Calendar.current
         let format = DateFormatter()
         format.dateFormat = "HHmm"
+        var timeVal: String
+        var timeComp: Int
+        var timeString: String
         //componants renamed to date componants
         
-        let timeString = format.string(from: currentDate)
+        timeString = ""
+        
+        timeVal = format.string(from: currentDate)
+        
+        timeComp = Int(timeVal)!
+        
+        if timeComp < 1200 {
+            timeString = "Morning"
+        }
+        
+        else if timeComp > 1200 && timeComp < 1600 {
+             timeString = "Afternoon"
+        }
+        
+        else if timeComp > 1600 {
+             timeString = "Evening"
+        }
+        
         
         print("time:" + timeString)
+        
         return timeString
     }
     
@@ -297,10 +375,11 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
             ])
     }
     
-    func textParsing(ocrOutput: String, expectedDesination:String) -> (String) {
+    func textParsing(ocrOutput: String, expectedDesination:String) -> (String,String)  {
         //Perform parsing of OCR result upon the recognition of train times information point
         // Parse location as first line
         var platform: String = ""
+        var calculatedLocation: String = ""
         var selectedLine: [String] = []
         let lines = ocrOutput.components(separatedBy: "\n") //Implement array of lines to iterate through - First line depicts current location
         let destination = lines[0] //First line is location - CAN BE USED TO VALIDATE LOCATION GATHERED FROM COORDS
@@ -310,6 +389,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
             platform = ""
         }
         else {
+            calculatedLocation = lines[0]
+            print("DestEcpt: " + calculatedLocation)
+            
             for line in lines[2...] { //From 3rd line onwards loop in order to gather train time
                 if line.contains(expectedDesination) { //talk about oN is dis.
                 selectedLine = line.components(separatedBy: " ") //Find line concerning expected destination
@@ -320,7 +402,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         }
         //MARK: NEEDs error handeling if OCR fails
         
-        return (platform) //May need to return all values for parsing
+        return (calculatedLocation, platform) //May need to return all values for parsing
     }
     
     
@@ -385,15 +467,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         print(pointName!)
         
         var intialLocation = ""
+        
+        var destList: [String] = []
 
         //MARK: Can these be replaced with classes
         var expectedPlatform: String = "" //Must determine train time information point and perform OCR before platform result
 
-        var expectDestination: String = "Penarth"  //FOR NOW ----Need to Use location infromation to parse expected destination
-        
         var journeyDescription: String = ""
-        
-        
     
         var promptImage:String = "" //Variable for the defintion of a promt image
         
@@ -409,7 +489,16 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
         overlayNode.eulerAngles.x = -.pi / 2
         node.addChildNode(overlayNode)
 
-         if (pointName?.contains("traintimes"))! { //TRAIN TIMES SIGN
+        if ((pointName?.contains("arrival"))!) {
+            swiftyTesseract.performOCR(on: UIImage(imageLiteralResourceName:(pointName!))) { ocrOutcome in
+                guard let ocrOutcome = ocrOutcome else { return }
+                print("Outcome:" + ocrOutcome)
+                self.finalDestination = ocrOutcome
+            }
+        }
+        
+        
+         else if (pointName?.contains("traintimes"))! { //TRAIN TIMES SIGN
 //            let imagefromscene = sceneView.session.currentFrame?.capturedImage
 //            
 //            guard let image = UIImage(pixelBuffer: imagefromscene!) else { return node } //To be changed to reference image capture
@@ -419,62 +508,72 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
             swiftyTesseract.performOCR(on:UIImage(imageLiteralResourceName:(pointName)!)) { ocrResult in
                 guard let ocrResult = ocrResult else { return }
                 print("OCR Result:" + ocrResult)
-    
-                if let lastLocation = self.locationPermit.location {
-                    let geocoder = CLGeocoder()
+                
+                for (_, element) in self.eventStore.enumerated() {
+                    if self.currentStationPostCode == element[0] && self.timeDescription == element[3] {  //Look at postcode and timeValues
+                        destList.append(element[1])
+                    }
+                }
                     
-                    geocoder.reverseGeocodeLocation(lastLocation, completionHandler: { (localPoints, error) in
-                        if error == nil {
-                            let locationResult = localPoints?[0]
-                            print ("Postcode: " + (locationResult?.postalCode)!) //Return location Postcode to be passed into initial location feild
-                            intialLocation = (locationResult?.postalCode!)!
+                var amount = [String: Int]() //Dictioary to store value and counts
+                var mostFrequent = ""
+    
+                for local in destList {
+                    if let iter = amount[local] {
+                        amount[local] = iter + 1
+                    }
+                    else {
+                        amount[local] = 1
+                    }
+                }
+                for key in amount.keys {
+                    if mostFrequent == "" {
+                        mostFrequent = key
+                    }
+                    else {
+                        let count = amount[key]!
+                        if count > amount[mostFrequent]! {
+                            mostFrequent = key
                         }
-                    })
+                    }
+        
                 }
-                    //Location function to be called here to compute current station
-                self.requiredPlatform = self.textParsing(ocrOutput: ocrResult, expectedDesination: "Bristol-Temple-Meads") //Set return result to current platform retrived through OCR
+                print("expected destination: " +  mostFrequent)
+                self.expectedDestination = mostFrequent
 
+                
+                
+                //let mostLikly = self.gatherReleventEvents(self.currentStationPostCode, self.timeDescription, self.requiredPlatform)
+                
+                (self.currentStationLocation, self.requiredPlatform) = self.textParsing(ocrOutput: ocrResult, expectedDesination: self.expectedDestination) //Sets return result to current platform retrived through OCR
                 print("Platform: " + self.requiredPlatform)
+            }
+            
+            if (self.requiredPlatform != "" || self.expectedDestination != "") {
+                journeyDescription = ("Go to Platform " + self.requiredPlatform + " for " + self.expectedDestination + " train") //Need to fetch expected train informatiom
+                promptImage = "Halt"
+            }
                 
-                self.destinationList = self.gatherReleventEvents("Cardiff Central", "1500")
-                
-                
-                //let mostLikleyDestination = self.retrieveMostlikley(self.destinationList)
-                if (self.requiredPlatform != "" || expectedPlatform != "")
-                {
-                    journeyDescription = ("Go to Platform " + self.requiredPlatform + " for " + expectDestination + " train") //Need to fetch expected train informatiom
-                    promptImage = "Halt"
-                }
-                
-                else{
-                    journeyDescription = ("Unable to gather context from current datapoints")
-                }
+            else {
+                journeyDescription = ("Unable to gather context from current datapoints")
             }
         }
         
-        else if (pointName?.contains("exitSign"))! {
-            swiftyTesseract.performOCR(on:UIImage(imageLiteralResourceName:(pointName)!)) { ocrResult in
-                guard let ocrOutcome = ocrResult else { return }
-                print("Outcome:" + ocrOutcome)
-                self.finalDestination = ocrOutcome
-                
-            }
-         }
-            
         else if ((pointName?.contains(requiredPlatform) ?? true)) {
-//            trainTimes = self.timeScrape(startPoint: self.startPoint, endPoint: self.endPoint)
-//            timeDescription = String(trainTimes[0] + "\n" + trainTimes[1] + "\n" + trainTimes[2]) //Limit information shown to user for UI clarity
-            journeyDescription =  String(self.startPoint + " -> " + self.endPoint)
+            trainTimes = self.timeScrape(startPoint: self.currentStationLocation, endPoint: self.expectedDestination)
+            timeDescription = String(trainTimes[0] + "\n" + trainTimes[1] + "\n" + trainTimes[2]) //Limit information shown to user for UI clarity
+            journeyDescription = String("Expected Route: " + self.currentStationLocation + " -> " + self.expectedDestination)
             promptImage = "Proceed"
             print(ocrResultVar)
         }
-        
+            
+            
          else if (!((pointName?.contains(requiredPlatform))!)) {
             promptImage = "Halt"
             // print(ocrResultVar)
         }
         
-   
+       
             // print(ocrResultVar)
         
         //Varaibles used as node should be manipulated by previouse if statement
@@ -580,5 +679,3 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, CL
 //        print("database values read")
 //        print(eventList)
 //    }
- 
- 
