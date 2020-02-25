@@ -5,4 +5,4 @@ Augmented reality has risen to prominence in both industrial and consumer facing
 The addition contextual awareness system will allow for the filtering of information and provide information based what is required at a given time. This project will the various implementation methodologies that can be used in order to provide relevant contextually aware information at the required time.
 
 ## Report: 
-The finla report can be found here: https://github.com/danlages/ContextAR/blob/master/Developing%20contextual%20approximation%20within%20Augmented%20Reality.pdf
+The final report can be found here: https://github.com/danlages/ContextAR/blob/master/Developing%20contextual%20approximation%20within%20Augmented%20Reality.pdf
